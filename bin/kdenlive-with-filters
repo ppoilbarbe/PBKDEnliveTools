@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Launches Kdenlive with the user's frei0r plugins made visible to it.
+#
+# The Kdenlive AppImage's frei0r module resolves its plugin directory
+# relative to its own bundled library (not via the FREI0R_PATH environment
+# variable, despite the frei0r spec describing FREI0R_PATH as the standard
+# override mechanism). So the only reliable way to add a plugin is to keep
+# a local extracted copy of the AppImage and drop the plugin into its own
+# usr/lib/frei0r-1 directory.
+#
+# This script extracts the AppImage once (re-extracting if it changes) into
+# a cache directory, syncs ~/.local/lib/frei0r-1 into it, and launches it.
+#
+# If your Kdenlive is installed some other way (distro package, Flatpak with
+# --filesystem access to ~/.local), it likely already honours FREI0R_PATH /
+# the standard frei0r user directory and this wrapper is not needed.
+#
+set -euo pipefail
+
+KDENLIVE_APPIMAGE="${KDENLIVE_APPIMAGE:-$HOME/local_apps/appimages/kdenlive}"
+USER_FREI0R_DIR="${USER_FREI0R_DIR:-$HOME/.local/lib/frei0r-1}"
+EXTRACT_DIR="${PBKDENLIVETOOLS_EXTRACT_DIR:-$HOME/.cache/PBKDEnliveTools/appimage-extracted}"
+
+if [ ! -e "$KDENLIVE_APPIMAGE" ]; then
+    echo "kdenlive-with-filters: '$KDENLIVE_APPIMAGE' not found." >&2
+    echo "Set KDENLIVE_APPIMAGE to the path of your Kdenlive AppImage." >&2
+    exit 1
+fi
+
+marker="$EXTRACT_DIR/.source-mtime"
+source_mtime="$(stat -c %Y "$KDENLIVE_APPIMAGE")"
+
+if [ ! -x "$EXTRACT_DIR/AppRun" ] || [ "$(cat "$marker" 2>/dev/null || echo '')" != "$source_mtime" ]; then
+    echo "kdenlive-with-filters: extracting AppImage (first run or AppImage changed)..." >&2
+    rm -rf "$EXTRACT_DIR"
+    mkdir -p "$(dirname "$EXTRACT_DIR")"
+    workdir="$(mktemp -d)"
+    (cd "$workdir" && "$KDENLIVE_APPIMAGE" --appimage-extract >/dev/null)
+    mv "$workdir/squashfs-root" "$EXTRACT_DIR"
+    rmdir "$workdir"
+    echo "$source_mtime" > "$marker"
+fi
+
+mkdir -p "$USER_FREI0R_DIR"
+for plugin in "$USER_FREI0R_DIR"/*.so; do
+    [ -e "$plugin" ] || continue
+    ln -sf "$plugin" "$EXTRACT_DIR/usr/lib/frei0r-1/$(basename "$plugin")"
+done
+
+exec "$EXTRACT_DIR/AppRun" "$@"

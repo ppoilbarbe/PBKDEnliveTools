@@ -1,0 +1,26 @@
+build/
+
+# IDE — VS Code
+.vscode/
+*.code-workspace
+
+# IDE — JetBrains (IDEA, CLion, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE — Eclipse / CDT
+.project
+.pydevproject
+.cproject
+.settings/
+
+# IDE — Vim / Neovim
+*.swp
+*.swo
+*~
+
+# IDE — Emacs
+\#*\#
+.\#*

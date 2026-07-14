@@ -1,0 +1,9 @@
+name: pbkdenlivetools
+channels:
+  - conda-forge
+dependencies:
+  - c-compiler
+  - make
+  - pkg-config
+  - mlt
+  - ffmpeg

@@ -1,0 +1,6 @@
+config:
+  # Line length not enforced — prose and command examples are naturally long
+  MD013: false
+
+ignores:
+  - CLAUDE.md

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE kpartgui>
+<effect xmlns="https://www.kdenlive.org" tag="frei0r.extendedges" id="frei0r.extendedges" type="video" version="1.0">
+    <name>Extend edges</name>
+    <description>Fills letterbox/pillarbox bars left by a mismatched source geometry with a stretched, blurred extension of the picture edges.</description>
+    <author>Marcel Spock</author>
+    <parameter type="animated" name="edge_width" max="200" min="1" default="20" factor="200">
+        <name>Edge sample width (px)</name>
+    </parameter>
+    <parameter type="animated" name="blur_amount" max="50" min="0" default="10" factor="50">
+        <name>Blur amount (px)</name>
+    </parameter>
+</effect>
