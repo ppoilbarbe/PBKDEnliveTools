@@ -18,12 +18,37 @@
 #
 set -euo pipefail
 
-KDENLIVE_APPIMAGE="${KDENLIVE_APPIMAGE:-$HOME/local_apps/appimages/kdenlive}"
+# Look for a Kdenlive AppImage in $PATH directories, newest first.
+# KDENLIVE_APPIMAGE always wins if set.
+find_kdenlive_appimage() {
+    local dirs
+    IFS=':' read -ra dirs <<< "$PATH"
+    shopt -s nullglob nocaseglob
+    local dir match found="" all=()
+    for dir in "${dirs[@]}"; do
+        [ -n "$dir" ] || continue
+        for match in "$dir"/kdenlive*.AppImage "$dir"/kdenlive*.appimage; do
+            [ -e "$match" ] || continue
+            all+=("$match")
+            if [ -z "$found" ] || [ "$match" -nt "$found" ]; then
+                found="$match"
+            fi
+        done
+    done
+    shopt -u nullglob nocaseglob
+    if [ "${#all[@]}" -gt 1 ]; then
+        echo "kdenlive-with-filters: multiple Kdenlive AppImages found in \$PATH, using the most recently modified one: $found" >&2
+        printf '  %s\n' "${all[@]}" >&2
+    fi
+    printf '%s' "$found"
+}
+
+KDENLIVE_APPIMAGE="${KDENLIVE_APPIMAGE:-$(find_kdenlive_appimage)}"
 USER_FREI0R_DIR="${USER_FREI0R_DIR:-$HOME/.local/lib/frei0r-1}"
 EXTRACT_DIR="${PBKDENLIVETOOLS_EXTRACT_DIR:-$HOME/.cache/PBKDEnliveTools/appimage-extracted}"
 
-if [ ! -e "$KDENLIVE_APPIMAGE" ]; then
-    echo "kdenlive-with-filters: '$KDENLIVE_APPIMAGE' not found." >&2
+if [ -z "$KDENLIVE_APPIMAGE" ] || [ ! -e "$KDENLIVE_APPIMAGE" ]; then
+    echo "kdenlive-with-filters: no Kdenlive AppImage found in \$PATH." >&2
     echo "Set KDENLIVE_APPIMAGE to the path of your Kdenlive AppImage." >&2
     exit 1
 fi

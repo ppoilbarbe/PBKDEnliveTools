@@ -13,6 +13,14 @@ numbers are unrelated by design.
 
 ## [Unreleased]
 
+### Changed
+
+- `kdenlive-with-filters`: instead of a hardcoded default path, the Kdenlive
+  AppImage is now auto-detected by scanning `$PATH` for `kdenlive*.AppImage`,
+  picking the most recently modified match; `KDENLIVE_APPIMAGE` still
+  overrides. A warning is printed to stderr listing all matches when more
+  than one AppImage is found.
+
 ## [2026.1] - 2026-07-14
 
 ### Added

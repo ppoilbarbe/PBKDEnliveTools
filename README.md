@@ -51,8 +51,9 @@ launching the AppImage directly:
 kdenlive-with-filters
 ```
 
-It looks for the AppImage at `$HOME/local_apps/appimages/kdenlive` by
-default; override with `KDENLIVE_APPIMAGE=/path/to/Kdenlive.AppImage`.
+It auto-detects the AppImage by looking for `kdenlive*.AppImage` in every
+directory listed in `$PATH`, picking the most recently modified match;
+override with `KDENLIVE_APPIMAGE=/path/to/Kdenlive.AppImage`.
 
 If Kdenlive is installed some other way (distro package, or a Flatpak with
 filesystem access to `~/.local`), it most likely already honours the
