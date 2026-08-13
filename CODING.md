@@ -8,44 +8,51 @@ For user-facing installation/usage, see [README.md](README.md).
 
 ```text
 PBKDEnliveTools/
-  environment.yml          conda environment (compiler, make, pkg-config, mlt, ffmpeg)
-  Makefile                 env management + delegates to each filter's Makefile
+  pixi.toml                 pixi environment (compiler, make, pkg-config, mlt, ffmpeg, clang-format, cppcheck)
+  pixi.lock                 pinned lockfile for the pixi environment (committed)
+  Makefile                  pixi bootstrap + delegates to each filter's Makefile
   bin/kdenlive-with-filters  launcher helper (see README's "Using an AppImage install")
   extendedges/              the "Extend edges" filter (source, XML, own Makefile)
 ```
 
 Each filter/transition lives in its own top-level directory with its own
 source, its own Kdenlive XML descriptor, and its own `Makefile`. The
-repository root only handles the shared conda build/test environment and
-delegates `build`/`install`/`uninstall`/`test`/`clean`/`bump-major`/`bump-minor`
+repository root only handles the shared [pixi](https://pixi.sh) build/test
+environment and delegates
+`build`/`install`/`uninstall`/`test`/`clean`/`hooks`/`bump-major`/`bump-minor`
 to each filter's `Makefile`.
 
 ## Setting up the build environment
 
 ```bash
-make env-create   # first time
-make env-update   # after environment.yml changes
-conda activate pbkdenlivetools
+make bootstrap   # installs pixi itself if missing, then `pixi install`
 ```
 
-The environment provides a C compiler, `make`, `pkg-config`, `melt`/`libmlt`
-(for testing) and `ffmpeg` (to generate test clips). A C compiler is enough
-to build the plugins; conda-forge's `mlt` package does not include frei0r
-support, so `melt` from this environment can load and run the plugins for
-unit-style testing but cannot be used to validate the full frei0r bridge —
-each filter's own test suite (see below) is the reliable, MLT-independent
-way to validate its logic.
+`make bootstrap` re-syncs the environment any time `pixi.toml`/`pixi.lock`
+change, same as the first run. The environment provides a C compiler, `make`,
+`pkg-config`, `melt`/`libmlt` (for testing), `ffmpeg` (to generate test
+clips), and `clang-format`/`cppcheck` (used by the pre-commit hooks below). A
+C compiler is enough to build the plugins; conda-forge's `mlt` package does
+not include frei0r support, so `melt` from this environment can load and run
+the plugins for unit-style testing but cannot be used to validate the full
+frei0r bridge — each filter's own test suite (see below) is the reliable,
+MLT-independent way to validate its logic.
 
 ## Build, test, clean
 
 ```bash
-make build      # compile every filter
-make test       # run every filter's test target
-make clean      # remove build artifacts
+pixi run build   # compile every filter
+pixi run test    # run every filter's test target
+pixi run clean   # remove build artifacts
 ```
 
+These are thin pixi tasks around the equivalent `make` targets
+(`make build`/`make test`/`make clean`); running `make <target>` directly
+also works from inside `pixi shell` or any shell where the pixi environment
+is already activated.
+
 Any filter can also be built/tested/installed on its own from its directory,
-e.g.:
+e.g. (inside `pixi shell`, or prefixed with `pixi run`):
 
 ```bash
 cd extendedges
@@ -82,8 +89,8 @@ older saved projects correctly if the effect's parameters change later.
 Bump it with:
 
 ```bash
-make bump-major FILTER=extendedges   # e.g. 1.2 -> 2.0 (also resets minor to 0)
-make bump-minor FILTER=extendedges   # e.g. 1.2 -> 1.3
+pixi run make bump-major FILTER=extendedges   # e.g. 1.2 -> 2.0 (also resets minor to 0)
+pixi run make bump-minor FILTER=extendedges   # e.g. 1.2 -> 1.3
 ```
 
 Both targets update the plugin's `.c` source and its Kdenlive XML together,
@@ -111,7 +118,7 @@ is reflected.
 
 ```bash
 pre-commit install       # once, sets up the git hook
-pre-commit run --all-files
+pixi run hooks            # equivalent to `pre-commit run --all-files`, with pixi's tools on PATH
 ```
 
 Hooks (`.pre-commit-config.yaml`):
@@ -122,8 +129,12 @@ Hooks (`.pre-commit-config.yaml`):
 - `shellcheck` for `bin/kdenlive-with-filters`.
 - `markdownlint-cli2` for Markdown docs (see `.markdownlint-cli2.yaml`).
 - `clang-format` (style, see `.clang-format`) and `cppcheck` (static
-  analysis) for C sources, both provisioned from conda-forge in an isolated
-  environment so no system install is required.
+  analysis) for C sources. Both hooks run as `language: system`, resolving
+  `clang-format`/`cppcheck` from `PATH` — provided by the pixi environment
+  (`pixi.toml`) when run via `pixi run hooks`/`make hooks`, or by `pixi
+  shell`. Running the git-triggered hook via a bare `git commit` outside a
+  pixi-activated shell only works if these tools also happen to be on the
+  system `PATH`.
 - A `gcc -fsyntax-only -Wall -Wextra -Werror` check, distinct from
   `cppcheck`: the compiler catches real compile errors, `cppcheck` catches
   data-flow bugs (e.g. unchecked `malloc`, dead conditions) the compiler

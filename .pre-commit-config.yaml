@@ -25,16 +25,14 @@ repos:
     hooks:
       - id: clang-format
         name: Format C code (clang-format)
-        language: conda
-        additional_dependencies: [clang-format]
+        language: system
         entry: clang-format -i
         files: \.c$
         exclude: frei0r\.h$
 
       - id: cppcheck
         name: Static analysis (cppcheck)
-        language: conda
-        additional_dependencies: [cppcheck]
+        language: system
         entry: cppcheck --std=c11 --enable=warning,style,performance,portability
           --error-exitcode=1 --suppress=missingIncludeSystem
         files: \.c$
@@ -42,15 +40,13 @@ repos:
 
       - id: c-syntax
         name: Check C syntax (gcc -fsyntax-only)
-        language: conda
-        additional_dependencies: [c-compiler]
+        language: system
         entry: bash -c 'for f in "$@"; do gcc -fsyntax-only -Wall -Wextra -Werror -std=c11 -I"$(dirname "$f")" "$f" || exit 1; done' --
         files: \.c$
 
       - id: extendedges-test
         name: Run extendedges test suite
-        language: conda
-        additional_dependencies: [c-compiler, make]
+        language: system
         entry: make -C extendedges test
         pass_filenames: false
         files: ^extendedges/.*\.(c|h)$

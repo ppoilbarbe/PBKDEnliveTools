@@ -20,6 +20,20 @@ numbers are unrelated by design.
   picking the most recently modified match; `KDENLIVE_APPIMAGE` still
   overrides. A warning is printed to stderr listing all matches when more
   than one AppImage is found.
+- Migrated the build/test environment from Conda (`environment.yml`) to
+  [pixi](https://pixi.sh) (`pixi.toml`/`pixi.lock`). `make env-create`/
+  `make env-update` are replaced by `make bootstrap` (installs pixi itself
+  if missing, then `pixi install`); `pixi run build`/`install`/`uninstall`/
+  `test`/`clean`/`hooks` are thin tasks around the equivalent `make`
+  targets. The pre-commit hooks for `clang-format`/`cppcheck`/the C syntax
+  check/the `extendedges` test suite now run as `language: system` instead
+  of `language: conda`, relying on the pixi environment's `PATH`
+  (`clang-format`/`cppcheck` added as pixi dependencies) rather than
+  pre-commit's own per-hook Conda provisioning.
+
+### Removed
+
+- `environment.yml` (superseded by `pixi.toml`/`pixi.lock`).
 
 ## [2026.1] - 2026-07-14
 

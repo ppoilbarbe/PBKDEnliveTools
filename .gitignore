@@ -1,5 +1,8 @@
 build/
 
+# pixi — local project environment (not the pixi.lock, which is committed)
+.pixi/
+
 # IDE — VS Code
 .vscode/
 *.code-workspace

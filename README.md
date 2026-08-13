@@ -9,12 +9,11 @@ Want to contribute or build a new filter? See [CODING.md](CODING.md).
 ## Installing
 
 ```bash
-make env-create
-conda activate pbkdenlivetools
-make install
+make bootstrap
+pixi run install
 ```
 
-`make install` installs, for every filter:
+`pixi run install` installs, for every filter:
 
 - the compiled `.so` into `~/.local/lib/frei0r-1/`
 - the Kdenlive effect XML into `~/.local/share/kdenlive/effects/`
@@ -31,7 +30,7 @@ templates** — XML stacks of *existing* built-in effects, the kind you get
 from "Export effect" — not compiled frei0r plugins. There is no GUI action to
 import a `.so` plugin: Kdenlive only picks up plugins from fixed directories
 (`frei0r-1` for the `.so`, `kdenlive/effects` for the XML descriptor) that it
-scans at startup, so installation has to go through `make install` as
+scans at startup, so installation has to go through `pixi run install` as
 described above, followed by a restart of Kdenlive.
 
 ## Using an AppImage install of Kdenlive
@@ -58,7 +57,7 @@ override with `KDENLIVE_APPIMAGE=/path/to/Kdenlive.AppImage`.
 If Kdenlive is installed some other way (distro package, or a Flatpak with
 filesystem access to `~/.local`), it most likely already honours the
 standard frei0r plugin locations and this wrapper isn't needed — just
-launch Kdenlive normally after `make install`.
+launch Kdenlive normally after `pixi run install`.
 
 ---
 

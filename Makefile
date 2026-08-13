@@ -1,7 +1,6 @@
 SHELL := /bin/bash
 
-ENV_NAME := pbkdenlivetools
-CONDA ?= conda
+PIXI := $(HOME)/.pixi/bin/pixi
 
 FILTERS := extendedges
 
@@ -9,12 +8,11 @@ KDENLIVE_BIN_DIR := $(HOME)/.local/bin
 
 FILTER ?=
 
-.PHONY: help env-create env-update build install uninstall test clean bump-major bump-minor $(FILTERS)
+.PHONY: help bootstrap build install uninstall test clean hooks bump-major bump-minor $(FILTERS)
 
 help:
 	@echo "Environment:"
-	@echo "  env-create   Create the '$(ENV_NAME)' conda environment from environment.yml"
-	@echo "  env-update   Update the '$(ENV_NAME)' conda environment from environment.yml"
+	@echo "  bootstrap    Install pixi (if missing) and sync the pixi environment"
 	@echo ""
 	@echo "Filters (delegates to each filter's own Makefile: $(FILTERS)):"
 	@echo "  build        Compile all filters"
@@ -22,14 +20,16 @@ help:
 	@echo "  uninstall    Remove all installed filters"
 	@echo "  test         Run each filter's test target"
 	@echo "  clean        Remove build artifacts"
+	@echo "  hooks        Run all pre-commit hooks"
 	@echo "  bump-major   Bump one filter's major version: make bump-major FILTER=<name>"
 	@echo "  bump-minor   Bump one filter's minor version: make bump-minor FILTER=<name>"
 
-env-create:
-	$(CONDA) env create -n $(ENV_NAME) -f environment.yml
+$(PIXI):
+	@printf "pixi not found, installing...\n"
+	curl -fsSL https://pixi.sh/install.sh | sh
 
-env-update:
-	$(CONDA) env update -n $(ENV_NAME) -f environment.yml --prune
+bootstrap: $(PIXI) ## Install pixi if absent, then sync the environment
+	$(PIXI) install
 
 build:
 	@for f in $(FILTERS); do $(MAKE) -C $$f build; done
@@ -48,6 +48,9 @@ uninstall:
 
 test:
 	@for f in $(FILTERS); do $(MAKE) -C $$f test; done
+
+hooks:
+	pre-commit run --all-files
 
 clean:
 	@for f in $(FILTERS); do $(MAKE) -C $$f clean; done
