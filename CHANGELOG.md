@@ -13,6 +13,8 @@ numbers are unrelated by design.
 
 ## [Unreleased]
 
+## [2026.2] - 2026-10-18
+
 ### Changed
 
 - `kdenlive-with-filters`: instead of a hardcoded default path, the Kdenlive
