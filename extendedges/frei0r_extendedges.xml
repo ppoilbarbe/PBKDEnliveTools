@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE kpartgui>
-<effect xmlns="https://www.kdenlive.org" tag="frei0r.extendedges" id="frei0r.extendedges" type="video" version="1.0">
+<effect xmlns="https://www.kdenlive.org" tag="frei0r.extendedges" id="frei0r.extendedges" type="video" version="1.1">
     <name>Extend edges</name>
     <description>Fills letterbox/pillarbox bars left by a mismatched source geometry with a stretched, blurred extension of the picture edges.</description>
     <author>Marcel Spock</author>

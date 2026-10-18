@@ -31,6 +31,19 @@ numbers are unrelated by design.
   (`clang-format`/`cppcheck` added as pixi dependencies) rather than
   pre-commit's own per-hook Conda provisioning.
 
+### Fixed
+
+- "Extend edges": the extension now follows the picture when a transform
+  (rotation, position, zoom, possibly keyframed) is applied before it in the
+  effect stack. The filter measures the transformed picture's rectangle
+  (centre, rotation, size) on every frame from its boundary with the
+  transparent background, and fills the project-shaped rectangle the whole
+  frame would cover under the same transform, by stretching the picture
+  edges along the picture's own axes. Picture and extended edges thus move
+  and rotate as one rectangle, as in the untransformed result. Opaque
+  letterbox/pillarbox bars are handled as before. The plugin version goes
+  from 1.0 to 1.1.
+
 ### Removed
 
 - `environment.yml` (superseded by `pixi.toml`/`pixi.lock`).

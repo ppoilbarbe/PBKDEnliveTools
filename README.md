@@ -81,6 +81,33 @@ Parameters:
 Genuine picture content is left untouched; only the detected bar regions
 (plus a small feathered blend zone at their boundary) are modified.
 
+### With a transform (rotation, position, zoom)
+
+Place "Extend edges" **below** Kdenlive's Transform effect in the clip's
+effect stack. The transform then hands it the moved/rotated picture over a
+transparent background; "Extend edges" measures the picture's rectangle
+(centre, rotation, size) on every frame and fills the rectangle the whole
+frame would cover under the same transform. The picture and its extended
+edges therefore move, zoom and rotate as one 16:9 (project-shaped)
+rectangle, exactly like the untransformed result, including while the
+transform is keyframed. The rest of the frame stays transparent.
+
+(Placed **above** the Transform effect, "Extend edges" has nothing to
+fill while the picture is transformed: the transform fetches the clip at its
+own size, without bars.)
+
+Limitations:
+
+- The rotation can only be measured modulo 90°. A rotated picture is
+  assumed to be landscape (its longer side is its width), while an upright
+  one keeps its horizontal axis as width, so portrait clips are handled
+  when upright. Consequently a landscape picture rotated by exactly 90°
+  (or a portrait clip that is rotated) gets the wrong extended rectangle.
+- With opaque bars, the bar colour is taken from the frame corners: a frame
+  that is mostly that colour (a fade to black, a title on a flat
+  background) is left untouched, and dark picture areas very close to the
+  bar colour and touching the frame border may be mistaken for bars.
+
 ---
 
 ## License

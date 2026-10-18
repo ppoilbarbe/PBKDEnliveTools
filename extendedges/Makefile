@@ -31,7 +31,7 @@ help:
 
 $(SO): $(PLUGIN).c frei0r.h
 	mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I. $(LDFLAGS) -o $@ $(PLUGIN).c
+	$(CC) $(CFLAGS) -I. $(LDFLAGS) -o $@ $(PLUGIN).c -lm
 
 build: $(SO)
 
@@ -54,7 +54,7 @@ test: $(TEST_BIN)
 
 $(TEST_BIN): test_$(PLUGIN).c $(PLUGIN).c frei0r.h
 	mkdir -p $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I. -o $@ test_$(PLUGIN).c $(PLUGIN).c
+	$(CC) $(CFLAGS) -I. -o $@ test_$(PLUGIN).c $(PLUGIN).c -lm
 
 clean:
 	rm -rf $(BUILD_DIR)
